@@ -4,8 +4,6 @@
 */
 
 module.exports = videojs => {
-  require('./lib/polyfills');
-
   const Plugin = videojs.getPlugin('plugin');
   const Utils = require('./lib/utils');
   const Controls = require('./components/controls');
