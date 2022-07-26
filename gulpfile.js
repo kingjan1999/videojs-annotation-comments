@@ -10,7 +10,7 @@ const rename = require('gulp-rename');
 const webserver = require('gulp-webserver');
 const uglify = require('gulp-uglify');
 const gutil = require('gulp-util');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const pump = require('pump');
 const mocha = require('gulp-mocha');
 const handlebars = require('gulp-handlebars');
@@ -39,8 +39,8 @@ function compile(watch, cb) {
       standalone: 'AnnotationComments'
     },
     transformOptions: {
-      presets: ['es2015'],
-      plugins: ['babel-plugin-transform-es2015-modules-simple-commonjs']
+      presets: ['@babel/preset-env'],
+      plugins: []
     },
     filename: CJSFILENAME
   };
@@ -71,7 +71,7 @@ function compile(watch, cb) {
 
   if (watch) {
     rebundle([bundlerDefault], true);
-    buildStream(bundlerDefault).on('update', function () {
+    return buildStream(bundlerDefault).on('update', function () {
       console.log('-> bundling...');
       rebundle([bundlerDefault]);
     });
@@ -92,7 +92,6 @@ gulp.task('sass', () => {
     .pipe(sass().on('error', sass.logError))
     .pipe(
       autoprefixer({
-        browsers: ['defaults', 'not ie <= 9'],
         cascade: false
       })
     )
@@ -102,19 +101,21 @@ gulp.task('sass', () => {
 });
 
 gulp.task('templates:watch', () => {
-  gulp.watch('./src/templates/**/*.hbs', ['templates']);
+  return gulp.watch('./src/templates/**/*.hbs', gulp.series('templates'));
 });
 
 gulp.task('sass:watch', () => {
-  gulp.watch('./src/css/**/*.scss', ['sass']);
+  return gulp.watch('./src/css/**/*.scss', gulp.series('sass'));
 });
 
+gulp.task('transpile', (cb) => compile(false, cb));
+
 gulp.task('transpile:watch', () => {
-  gulp.watch('./src/js/**/*', ['transpile']);
+  return gulp.watch('./src/js/**/*', gulp.series('transpile'));
 });
 
 gulp.task('templates', () => {
-  gulp
+  return gulp
     .src('./src/templates/**/*.hbs')
     .pipe(
       handlebars({
@@ -140,7 +141,7 @@ gulp.task('templates', () => {
     .pipe(gulp.dest('./src/js/compiled/'));
 });
 
-gulp.task('build', ['templates', 'sass', 'transpile'], (cb) => {
+gulp.task('build', gulp.series('templates', 'sass', 'transpile', (cb) => {
   pump([
     gulp.src('build/videojs-annotation-comments.js'),
     rename(FILENAME.replace('.js', '.min.js')),
@@ -161,17 +162,16 @@ gulp.task('build', ['templates', 'sass', 'transpile'], (cb) => {
     ],
     cb
   );
-});
+}));
 
 gulp.task('test', () => {
-  gulp.src(['test/mocha/components/*.js'], { read: false }).pipe(mocha());
+  return gulp.src(['test/mocha/components/*.js'], { read: false }).pipe(mocha());
 });
 
 gulp.task('tdd', function () {
-  gulp.watch(['src/**/*.js', 'src/**/.hbs', 'test/mocha/components/*.js'], ['test']);
+  return gulp.watch(['src/**/*.js', 'src/**/.hbs', 'test/mocha/components/*.js'], ['test']);
 });
 
-gulp.task('transpile', (cb) => compile(false, cb));
 gulp.task('bundle_watch', (cb) => compile(true, cb));
-gulp.task('watch', ['dev_webserver', 'templates:watch', 'sass:watch', 'transpile:watch', 'tdd']);
-gulp.task('default', ['watch']);
+gulp.task('watch', gulp.series('dev_webserver', 'templates:watch', 'sass:watch', 'transpile:watch', 'tdd'));
+gulp.task('default', gulp.series('watch'));
