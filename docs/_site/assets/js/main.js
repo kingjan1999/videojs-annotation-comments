@@ -19,7 +19,7 @@
 // Intercept VAC logs and port them to console UI
 (function () {
   window.VAC_DEBUG = true;
-  const $console = $('.console');
+  const $console = document.querySelector('.console');
   // eslint-disable-next-line no-console
   const consoleLog = console.log;
 
@@ -37,14 +37,17 @@
       output = output.replace('undefined', '');
       output = `>> ${output}`;
 
-      const $p = $('<p/>').text(output);
-      $console.append($p);
-      $console.scrollTop($console[0].scrollHeight);
+      const $p = document.createElement('<p/>');
+      $p.textContent = output;
+      $console.appendChild($p);
+      $console.scrollTop = $console[0].scrollHeight;
     }
     consoleLog.apply(console, arguments);
   };
 })();
 
-$('.clear-console-btn').on('click', function () {
-  $('.console').empty();
+document.querySelector('.clear-console-btn').addEventListener('click', function () {
+  const console = document.querySelector('.console');
+  while(console.firstChild)
+    console.removeChild(console.firstChild);
 });

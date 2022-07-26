@@ -96,5 +96,23 @@ module.exports = {
   isWithinRange: (start, end, n) => {
     end = end || start + 1; // for ranges with NO end defined, assume a 1s range
     return n >= start && n <= end;
+  },
+
+  elementHeight: (el) => {
+    const styles = window.getComputedStyle(el);
+    const height = el.offsetHeight;
+    const borderTopWidth = parseFloat(styles.borderTopWidth);
+    const borderBottomWidth = parseFloat(styles.borderBottomWidth);
+    const paddingTop = parseFloat(styles.paddingTop);
+    const paddingBottom = parseFloat(styles.paddingBottom);
+    return height - borderBottomWidth - borderTopWidth - paddingTop - paddingBottom;
+  },
+
+  elementOffset: (el) => {
+    const rect = el.getBoundingClientRect();
+    return {
+      top: rect.top + document.body.scrollTop,
+      left: rect.left + document.body.scrollLeft
+    };
   }
 };

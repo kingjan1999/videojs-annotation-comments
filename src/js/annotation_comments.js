@@ -67,7 +67,7 @@ module.exports = videojs => {
     // Bind needed events for interaction w/ components
     bindEvents() {
       // Set player boundaries on window size change or fullscreen change
-      $(window).on('resize.vac-window-resize', Utils.throttle(this.setBounds.bind(this), 500));
+      window.addEventListener('resize.vac-window-resize', Utils.throttle(this.setBounds.bind(this), 500));
       this.player.on('fullscreenchange', Utils.throttle(this.setBounds.bind(this), 500));
 
       // Remove annotation features on fullscreen if showFullScreen: false
@@ -75,9 +75,9 @@ module.exports = videojs => {
         this.player.on('fullscreenchange', () => {
           if (this.player.isFullscreen_) {
             this.preFullscreenAnnotationsEnabled = this.active;
-            $(this.player.el()).addClass('vac-disable-fullscreen');
+            this.player.el().classList.add('vac-disable-fullscreen');
           } else {
-            $(this.player.el()).removeClass('vac-disable-fullscreen');
+            this.player.el().classList.remove('vac-disable-fullscreen');
           }
           if (this.preFullscreenAnnotationsEnabled) {
             // If we were previously in annotation mode (pre-fullscreen) or entering fullscreeen and are
@@ -124,14 +124,14 @@ module.exports = videojs => {
     // Set player UI boundaries
     setBounds(triggerChange = true) {
       this.bounds = {};
-      const $player = $(this.player.el());
+      const $player = this.player.el();
       const $ctrls = $player.find('.vjs-control-bar');
 
-      this.bounds.left = $player.offset().left;
-      this.bounds.top = $player.offset().top;
-      this.bounds.right = this.bounds.left + $player.width();
-      this.bounds.bottom = this.bounds.top + $player.height();
-      this.bounds.bottomWithoutControls = this.bounds.bottom - $ctrls.height();
+      this.bounds.left = Utils.elementOffset($player).left;
+      this.bounds.top = Utils.elementOffset($player).top;
+      this.bounds.right = this.bounds.left + $player.clientWidth;
+      this.bounds.bottom = this.bounds.top + Utils.elementHeight($player);
+      this.bounds.bottomWithoutControls = this.bounds.bottom - Utils.elementHeight($ctrls);
 
       // fires an event when bounds have changed during resizing
       if (triggerChange) this.fire('playerBoundsChanged', this.bounds);
@@ -161,17 +161,17 @@ module.exports = videojs => {
       this.teardown();
       if (this.player) {
         this.player.annotationComments = null;
-        $(this.player.el()).removeClass('vac-active');
-        $(this.player.el())
-          .find("[class^='vac-']")
-          .remove();
+        this.player.el().classList.remove('vac-active');
+        this.player.el()
+          .querySelectorAll("[class^='vac-']")
+          .forEach((el) => el.parentNode.removeChild(el));
       }
       super.dispose();
     }
 
     teardown() {
       if (this.player) this.player.off('fullscreenchange');
-      $(window).off('resize.vac-window-resize');
+      window.removeEventListener('resize.vac-window-resize');
     }
   };
 };
