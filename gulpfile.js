@@ -18,6 +18,7 @@ const wrap = require('gulp-wrap');
 const concat = require('gulp-concat');
 const declare = require('gulp-declare');
 const autoprefixer = require('gulp-autoprefixer');
+const merge = require('merge-stream');
 
 const FILENAME = 'videojs-annotation-comments.js';
 const CJSFILENAME = 'videojs-annotation-comments.cjs.js';
@@ -53,10 +54,10 @@ function compile(watch, cb) {
   }
 
   function rebundle(bundlers, watch) {
-    bundlers.forEach((b) => {
+    return bundlers.map((b) => {
       const browserifyStream = watch ? watchify(buildStream(b)) : buildStream(b);
 
-      browserifyStream
+      return browserifyStream
         .bundle()
         .on('log', gutil.log)
         .on('error', gutil.log.bind(gutil.colors.red, 'Browserify Error'))
@@ -71,14 +72,13 @@ function compile(watch, cb) {
 
   if (watch) {
     rebundle([bundlerDefault], true);
-    return buildStream(bundlerDefault).on('update', function () {
+    return buildStream(bundlerDefault).on('update', () => {
       console.log('-> bundling...');
       rebundle([bundlerDefault]);
     });
-  } else {
-    rebundle([bundlerDefault, bundlerCjs], false);
-    cb();
   }
+  
+  return merge(rebundle([bundlerDefault, bundlerCjs], false));
 }
 
 gulp.task('dev_webserver', () => {
@@ -168,10 +168,8 @@ gulp.task('test', () => {
   return gulp.src(['test/mocha/components/*.js'], { read: false }).pipe(mocha());
 });
 
-gulp.task('tdd', function () {
-  return gulp.watch(['src/**/*.js', 'src/**/.hbs', 'test/mocha/components/*.js'], ['test']);
-});
+gulp.task('tdd', () => gulp.watch(['src/**/*.js', 'src/**/.hbs', 'test/mocha/components/*.js'], gulp.series(['test'])));
 
 gulp.task('bundle_watch', (cb) => compile(true, cb));
-gulp.task('watch', gulp.series('dev_webserver', 'templates:watch', 'sass:watch', 'transpile:watch', 'tdd'));
+gulp.task('watch', gulp.parallel('dev_webserver', 'templates:watch', 'sass:watch', 'transpile:watch', 'tdd'));
 gulp.task('default', gulp.series('watch'));

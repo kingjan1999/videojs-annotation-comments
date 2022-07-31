@@ -125,7 +125,7 @@ module.exports = videojs => {
     setBounds(triggerChange = true) {
       this.bounds = {};
       const $player = this.player.el();
-      const $ctrls = $player.find('.vjs-control-bar');
+      const $ctrls = $player.querySelector('.vjs-control-bar');
 
       this.bounds.left = Utils.elementOffset($player).left;
       this.bounds.top = Utils.elementOffset($player).top;

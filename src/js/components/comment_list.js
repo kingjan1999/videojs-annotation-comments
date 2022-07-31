@@ -84,7 +84,7 @@ module.exports = class CommentList extends PlayerUIComponent {
     this.$wrap
       .addClass(this.UI_CLASSES.active)
       .find('.vac-comments-wrap')
-      .scrollTop(999999);
+      .scrollTop = 999999;
     const $shapebox = this.$wrap.find('.vac-add-new-shapebox');
     const width = $shapebox.outerWidth();
     const top = $shapebox.position().top + 10;
@@ -131,11 +131,11 @@ module.exports = class CommentList extends PlayerUIComponent {
   // Update state and re-render UI
   destroyComment(event) {
     const annotationId = this.annotation.id;
-    if (this.comments.length == 1) {
+    if (this.comments.length === 1) {
       this.annotation.teardown();
     } else {
       const commentId = this.findCommentId(event);
-      const comment = this.comments.find(c => c.id == commentId);
+      const comment = this.comments.find(c => c.id === commentId);
       const i = this.comments.indexOf(comment);
       this.comments.splice(i, 1);
       this.reRender();
@@ -159,7 +159,7 @@ module.exports = class CommentList extends PlayerUIComponent {
   disablePageScroll(event) {
     const $target = $(event.currentTarget);
     const height = $target.height();
-    const ogEvent = event.originalEvent;
+    const ogEvent = event;
     const delta = ogEvent.wheelDelta || -ogEvent.detail;
     const dir = delta < 0 ? 'down' : 'up';
     const scrollDiff = Math.abs(
@@ -167,14 +167,14 @@ module.exports = class CommentList extends PlayerUIComponent {
     );
 
     // if scrolling into top of div
-    if ($target.scrollTop() < 20 && dir == 'up') {
+    if ($target.scrollTop < 20 && dir == 'up') {
       $target.stop();
       $target.animate({ scrollTop: 0 }, 100);
       event.preventDefault();
     }
 
     // if scrolling into bottom of div
-    if ($target.scrollTop() > scrollDiff - 10 && dir == 'down') {
+    if ($target.scrollTop > scrollDiff - 10 && dir == 'down') {
       $target.stop();
       $target.animate({ scrollTop: height + 40 }, 100);
       event.preventDefault();

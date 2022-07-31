@@ -6,6 +6,8 @@
     <link href="assets/videojs_skin.css" rel="stylesheet" />
     <link href="assets/page.css" rel="stylesheet" />
     <link href="css/annotations.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.1/cash.min.js"></script>
+
     <script>
       function guid() {
         function s4() {
@@ -172,7 +174,7 @@
           ')">- REMOVE VIDEO</button></div>';
         html += "</div>";
 
-        var $lastVid = $(".vwrap:last");
+        var $lastVid = $(".vwrap").last();
         if ($lastVid.length) {
           $lastVid.after(html);
         } else {
