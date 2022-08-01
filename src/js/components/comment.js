@@ -2,7 +2,7 @@
   Component for an invidual comment
 */
 
-const moment = require('moment');
+const formatDistance = require('date-fns/formatDistance');
 const PlayerUIComponent = require('./../lib/player_ui_component');
 const Utils = require('./../lib/utils');
 
@@ -15,7 +15,7 @@ module.exports = class Comment extends PlayerUIComponent {
     this.id = data.id || this.componentId;
     this.meta = data.meta;
     this.body = data.body;
-    this.timestamp = moment(data.meta.datetime).unix();
+    this.timestamp = new Date(data.meta.datetime).getTime();
     this.timeSince = this.timeSince();
 
     this.$el = $(this.render());
@@ -45,7 +45,7 @@ module.exports = class Comment extends PlayerUIComponent {
 
   // Return time since comment timestamp
   timeSince() {
-    return moment(this.meta.datetime).fromNow();
+    return formatDistance(new Date(this.meta.datetime), new Date(), { addSuffix: true });
   }
 
   teardown(destroy = false) {
@@ -62,7 +62,7 @@ module.exports = class Comment extends PlayerUIComponent {
   // Return an object with plugin data, timestamp, unique id, and body content
   static dataObj(body, plugin) {
     return {
-      meta: { datetime: moment().toISOString(), ...plugin.meta },
+      meta: { datetime: new Date().toISOString(), ...plugin.meta },
       id: Utils.guid(),
       body
     };
