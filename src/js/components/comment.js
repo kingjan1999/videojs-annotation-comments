@@ -45,6 +45,7 @@ module.exports = class Comment extends PlayerUIComponent {
 
   // Return time since comment timestamp
   timeSince() {
+    if(!this.meta.datetime) return "";
     return formatDistance(new Date(this.meta.datetime), new Date(), { addSuffix: true });
   }
 
