@@ -65,7 +65,7 @@ module.exports = class Controls extends PlayerUIComponent {
         ); // Cancel link click
     }
     if (bindArrowKeys) {
-      $(document).on(`keyup.vac-nav-${this.playerId}`, e => this.handleArrowKeys(e)); // Use arrow keys to navigate annotations
+      $(document).on(`keyup.vac-nav-${this.playerId}`, (e) => this.handleArrowKeys(e)); // Use arrow keys to navigate annotations
     }
   }
 
@@ -108,7 +108,10 @@ module.exports = class Controls extends PlayerUIComponent {
     };
 
     const $ctrls = this.renderTemplate(templateName, data);
-    this.$player.append($ctrls);
+    if ($ctrls.trim()) {
+      // <==> data.showControls
+      this.$player.append($ctrls);
+    }
 
     if (this.playerButton) this.playerButton.updateNumAnnotations();
   }
@@ -200,7 +203,7 @@ module.exports = class Controls extends PlayerUIComponent {
     this.plugin.setBounds(false);
     $(document).on(
       `mousemove.vac-tooltip-${this.playerId}`,
-      Utils.throttle(event => {
+      Utils.throttle((event) => {
         if (!this.plugin.bounds) return;
 
         const x = event.pageX;
