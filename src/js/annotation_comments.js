@@ -67,7 +67,8 @@ module.exports = videojs => {
     // Bind needed events for interaction w/ components
     bindEvents() {
       // Set player boundaries on window size change or fullscreen change
-      window.addEventListener('resize.vac-window-resize', Utils.throttle(this.setBounds.bind(this), 500));
+      this.resizeHandler = Utils.throttle(this.setBounds.bind(this), 500); 
+      window.addEventListener('resize.vac-window-resize', this.resizeHandler);
       this.player.on('fullscreenchange', Utils.throttle(this.setBounds.bind(this), 500));
 
       // Remove annotation features on fullscreen if showFullScreen: false
@@ -171,7 +172,7 @@ module.exports = videojs => {
 
     teardown() {
       if (this.player) this.player.off('fullscreenchange');
-      window.removeEventListener('resize.vac-window-resize');
+      window.removeEventListener('resize.vac-window-resize', this.resizeHandler);
     }
   };
 };
